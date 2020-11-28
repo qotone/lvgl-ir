@@ -38,7 +38,7 @@
 /* 1: Enable screen transparency.
  * Useful for OSD or other overlapping GUIs.
  * Requires `LV_COLOR_DEPTH = 32` colors and the screen's style should be modified: `style.body.opa = ...`*/
-#define LV_COLOR_SCREEN_TRANSP    0
+#define LV_COLOR_SCREEN_TRANSP    1
 
 /*Images pixels with this color will not be drawn (with chroma keying)*/
 #define LV_COLOR_TRANSP    LV_COLOR_LIME         /*LV_COLOR_LIME: pure green*/
@@ -386,10 +386,15 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
 #define LV_THEME_DEFAULT_COLOR_PRIMARY      lv_color_hex(0x01a2b1)
 #define LV_THEME_DEFAULT_COLOR_SECONDARY    lv_color_hex(0x44d1b6)
 #define LV_THEME_DEFAULT_FLAG               LV_THEME_MATERIAL_FLAG_LIGHT
-#define LV_THEME_DEFAULT_FONT_SMALL         &lv_font_montserrat_14
-#define LV_THEME_DEFAULT_FONT_NORMAL        &lv_font_montserrat_14
-#define LV_THEME_DEFAULT_FONT_SUBTITLE      &lv_font_montserrat_14
-#define LV_THEME_DEFAULT_FONT_TITLE         &lv_font_montserrat_14
+/* #define LV_THEME_DEFAULT_FONT_SMALL         &lv_font_montserrat_14 */
+/* #define LV_THEME_DEFAULT_FONT_NORMAL        &lv_font_montserrat_14 */
+/* #define LV_THEME_DEFAULT_FONT_SUBTITLE      &lv_font_montserrat_14 */
+/* #define LV_THEME_DEFAULT_FONT_TITLE         &lv_font_montserrat_14 */
+
+#define LV_THEME_DEFAULT_FONT_SMALL         &puhui_regular_16
+#define LV_THEME_DEFAULT_FONT_NORMAL        &puhui_regular_16
+#define LV_THEME_DEFAULT_FONT_SUBTITLE      &puhui_regular_16
+#define LV_THEME_DEFAULT_FONT_TITLE         &puhui_regular_16
 
 /*==================
  *    FONT USAGE
@@ -443,12 +448,12 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
  * #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(my_font_1) \
  *                                LV_FONT_DECLARE(my_font_2)
  */
-#define LV_FONT_CUSTOM_DECLARE
+#define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(puhui_regular_16)
 
 /* Enable it if you have fonts with a lot of characters.
  * The limit depends on the font size, font face and bpp
  * but with > 10,000 characters if you see issues probably you need to enable it.*/
-#define LV_FONT_FMT_TXT_LARGE   0
+#define LV_FONT_FMT_TXT_LARGE   1
 
 /* Enables/disables support for compressed fonts. If it's disabled, compressed
  * glyphs cannot be processed by the library and won't be rendered.

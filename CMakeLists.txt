@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 # Set the project name
-project (lvgl_hisi)
+project (lvgl_httem)
 
 # -DCMAKE_EXPORT_COMPILE_COMMANDS=1
 # output compile_json.txt
@@ -49,6 +49,7 @@ set(SOURCES
     src/main.c
     src/ui_main.c
     src/keypad.c
+    src/puhui_regular_16.c
     )
 
 # Include header files
@@ -112,29 +113,30 @@ set(LVGL_SRCS
     ${LVGL_PATH}/lvgl/src/lv_font/lv_font.c
     ${LVGL_PATH}/lvgl/src/lv_font/lv_font_fmt_txt.c
     ${LVGL_PATH}/lvgl/src/lv_font/lv_font_loader.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_12.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_14.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_16.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_18.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_20.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_22.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_24.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_26.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_28.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_30.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_32.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_34.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_36.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_38.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_40.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_42.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_44.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_46.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_48.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_12_subpx.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_28_compressed.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_unscii_8.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_dejavu_16_persian_hebrew.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_12.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_14.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_16.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_18.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_20.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_22.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_24.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_26.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_28.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_30.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_32.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_34.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_36.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_38.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_40.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_42.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_44.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_46.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_48.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_12_subpx.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_28_compressed.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_unscii_8.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_dejavu_16_persian_hebrew.c
+    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_simsun_16_cjk.c
     ${LVGL_PATH}/lvgl/src/lv_misc/lv_area.c
     ${LVGL_PATH}/lvgl/src/lv_misc/lv_task.c
     ${LVGL_PATH}/lvgl/src/lv_misc/lv_fs.c

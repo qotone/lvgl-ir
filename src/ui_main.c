@@ -4,9 +4,11 @@
 //#include "lv_drivers/indev/mouse_hid.h"
 //#include "lv_examples/lv_apps/demo/demo.h"
 #include "lvgl.h"
-#include "lv_ex_conf.h"
+//#include "lv_ex_conf.h"
+#include "lv_font.h"
 
 
+#include <stddef.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <time.h>
@@ -115,20 +117,7 @@ static void* lvgl_main(void* p)
     disp_drv.flush_cb = fbdev_flush;
     lv_disp_drv_register(&disp_drv);
 
-#if 0
-    mouse_hid_init();
-    lv_indev_drv_t indev_drv;
-    lv_indev_drv_init(&indev_drv);          /*Basic initialization*/
-    indev_drv.type = LV_INDEV_TYPE_POINTER;
-    indev_drv.read_cb = mouse_hid_read;     /*This function will be called periodically (by the library) to get the mouse position and state*/
-    lv_indev_t * mouse_indev = lv_indev_drv_register(&indev_drv);
 
-    LV_IMG_DECLARE(mouse_ico);
-    lv_obj_t * cursor_obj =  lv_img_create(lv_scr_act(), NULL);
-    lv_img_set_src(cursor_obj, &mouse_ico);
-    //lv_img_set_src(cursor_obj, LV_SYMBOL_CALL);
-    lv_indev_set_cursor(mouse_indev, cursor_obj);
-#else
     g = lv_group_create();
     lv_group_set_focus_cb(g, focus_cb);
     /*------------------
@@ -149,10 +138,10 @@ static void* lvgl_main(void* p)
      * and assign this input device to group to navigate in it:
      * `lv_indev_set_group(indev_keypad, group);` */
 
-#endif
+
 
     /*Create a Demo*/
-    //lv_obj_t* tv = demo_create();
+#if 0
     tv = lv_tabview_create(lv_scr_act(), NULL);
     lv_obj_set_event_cb(tv, tv_event_cb);
 
@@ -165,25 +154,37 @@ static void* lvgl_main(void* p)
     text_input_create(t2);
 
     msgbox_create();
+#else
 
+    // transparent screen
+    // https://docs.lvgl.io/v7/en/html/overview/display.html#transparent-screens
+    lv_obj_set_style_local_bg_opa(lv_scr_act(), LV_OBJMASK_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_TRANSP);
+    lv_disp_set_bg_opa(NULL, LV_OPA_TRANSP);
+
+
+
+    static lv_style_t my_style;
+
+    lv_style_init(&my_style);
+
+    lv_style_set_text_font(&my_style, LV_STATE_DEFAULT, &puhui_regular_16);  /*Set a larger font*/
+    tv = lv_tabview_create(lv_scr_act(), NULL);
+    /* lv_obj_set_event_cb(tv, tv_event_cb); */
+    lv_obj_set_size(tv, 800, 600);
+    lv_obj_align(tv, NULL, LV_ALIGN_CENTER, 0, 0);
+    t1 = lv_tabview_add_tab(tv, "信息");
+    t2 = lv_tabview_add_tab(tv, "设置");
+    t3 = lv_tabview_add_tab(tv, "视频");
+    lv_group_add_obj(g, tv);
+
+#endif
     /*Handle LitlevGL tasks (tickless mode)*/
     while(lv_running) {
 
         lv_task_handler();
         usleep(5*1000);
 
-// no use
-#if 0
-        // test;
-        static cnt = 0;
-        if(++cnt%200 == 0)
-{
-                static uint8_t tab = 0;
-                tab++;
-                if(tab >= 3) tab = 0;
-                lv_tabview_set_tab_act(tv, tab, true);
-            }
-#endif
+
         }
 
         return NULL;

@@ -169,7 +169,7 @@ static int gsf_mpp_fb_start(int vofb, VO_INTF_SYNC_E sync, int hide)
     stAlpha.bAlphaChannel = HI_TRUE;//HI_FALSE;
     stAlpha.u8Alpha0 = 0xff; // 当最高位为0时,选择该值作为Alpha
     stAlpha.u8Alpha1 = 0x0; // 当最高位为1时,选择该值作为Alpha
-    stAlpha.u8GlobalAlpha = 0xff;//在Alpha通道使能时起作用
+    stAlpha.u8GlobalAlpha = 0xcf;//在Alpha通道使能时起作用
 
     if (ioctl(fd, FBIOPUT_ALPHA_HIFB,  &stAlpha) < 0)
     {
