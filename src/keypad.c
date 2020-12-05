@@ -12,8 +12,15 @@
 #include <errno.h>
 
 #include "keypad.h"
-#include "hiir.h"
-#include "ir_code.h"
+
+
+
+//#include "ui_setting_panel.h"
+extern void kp_callback(irkey_info_s irkey);
+
+//extern lv_group_t*  g;
+
+
 
 typedef struct {
     fd_set fds;
@@ -26,8 +33,8 @@ typedef struct {
 /**********************
  *  STATIC VARIABLES
  **********************/
-static uint32_t last_key;
-static lv_indev_state_t state;
+uint32_t last_key;
+lv_indev_state_t state;
 
 static keypad_cxt_t ctx = {0};
 
@@ -98,12 +105,34 @@ static void * keypad_handler(void *p)
             count = res / sizeof(irkey_info_s);
             if((res > 0) && (res <= sizeof(rcv_irkey_info))){
                 for(i = 0; i < count; i++){
-                    //printf("index:%d\tkeyvalue=H/L/S 0x%lx/0x%lx/0x%lx\n",i,rcv_irkey_info[i].irkey_datah,rcv_irkey_info[i].irkey_datal,rcv_irkey_info[i].irkey_state_code);
-
+                    printf("index:%d\tkeyvalue=H/L/S 0x%lx/0x%lx/0x%lx\n",i,rcv_irkey_info[i].irkey_datah,rcv_irkey_info[i].irkey_datal,rcv_irkey_info[i].irkey_state_code);
+#if 0
                     state = rcv_irkey_info[i].irkey_state_code ? LV_INDEV_STATE_REL : LV_INDEV_STATE_PR;
                     if(state == LV_INDEV_STATE_PR){
                         last_key = rcv_irkey_info[i].irkey_datal;//keycode_to_ascii(rcv_irkey_info[i].irkey_datal);
                     }
+#endif
+                    /* if(act_obj != NULL){ */
+                    /*     if(rcv_irkey_info[i].irkey_state_code == 0x01 && rcv_irkey_info[i].irkey_datal == REMOTE_MENU){ */
+                    /*         printf("delete panel\n"); */
+                    /*         lv_obj_del(act_obj); */
+                    /*         act_obj = NULL; */
+                    /*     }else{ */
+                    /*         state = rcv_irkey_info[i].irkey_state_code ? LV_INDEV_STATE_REL : LV_INDEV_STATE_PR; */
+                    /*         if(state == LV_INDEV_STATE_PR){ */
+                    /*             last_key = rcv_irkey_info[i].irkey_datal;//keycode_to_ascii(rcv_irkey_info[i].irkey_datal); */
+                    /*         } */
+                    /*     } */
+                    /* }else{ */
+
+                    /*     if(rcv_irkey_info[i].irkey_state_code == 0x01 && rcv_irkey_info[i].irkey_datal == REMOTE_MENU){ */
+                    /*         printf("create panel\n"); */
+                    /*         act_obj = create_setting_panel(lv_scr_act(), NULL); */
+                    /*         printf("create_panel created ok!\n"); */
+                    /*     } */
+                    /* } */
+                    kp_callback(rcv_irkey_info[i]);
+
                 }
             }
             FD_CLR(ctx.listen_fd, &read_fds);

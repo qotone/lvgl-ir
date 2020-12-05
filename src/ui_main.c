@@ -6,15 +6,19 @@
 #include "lvgl.h"
 //#include "lv_ex_conf.h"
 #include "lv_font.h"
+#include "ui_fb.h"
 
-
+#include <stdint.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <time.h>
 #include <sys/time.h>
+#include <stdio.h>
 
 #include "keypad.h"
+#include "ui_setting_panel.h"
 
 static pthread_t tid;
 static int lv_running = 0, lv_w = 1280, lv_h = 1024;
@@ -23,21 +27,16 @@ static int lv_running = 0, lv_w = 1280, lv_h = 1024;
  *  STATIC VARIABLES
  **********************/
 static lv_group_t*  g;
-static lv_obj_t * tv;
-static lv_obj_t * t1;
-static lv_obj_t * t2;
-static lv_obj_t * t3;
-
-
+static lv_obj_t *act_obj = NULL;
 
 static void* lvgl_main(void* p);
 
 
-static void selectors_create(lv_obj_t * parent);
-static void text_input_create(lv_obj_t * parent);
-static void msgbox_create(void);
+/* static void selectors_create(lv_obj_t * parent); */
+/* static void text_input_create(lv_obj_t * parent); */
+/* static void msgbox_create(void); */
 
-static void focus_cb(lv_group_t * g);
+
 static void msgbox_event_cb(lv_obj_t * msgbox, lv_event_t e);
 static void tv_event_cb(lv_obj_t * ta, lv_event_t e);
 static void ta_event_cb(lv_obj_t * ta, lv_event_t e);
@@ -55,12 +54,25 @@ struct {
     lv_obj_t * list;
 }selector_objs;
 
+/* typedef struct{ */
+/*     int count; */
+/*     lv_obj_t *objs[0]; */
+/* } children_obj_t; */
+
+
+/* typedef struct app_widget */
+/* { */
+/*     lv_obj_t *obj; */
+/*     lv_obj_type_t type; */
+/*     struct app_widget */
+/* } app_widget_t; */
+
+
 struct {
     lv_obj_t * ta1;
     lv_obj_t * ta2;
     lv_obj_t * kb;
 }textinput_objs;
-
 
 
 /**********************
@@ -89,6 +101,32 @@ int lvgl_start(int w, int h)
   return pthread_create(&tid, NULL, lvgl_main, NULL);
 }
 
+void kp_callback(irkey_info_s irkey)
+{
+
+    if(act_obj != NULL){
+        if(irkey.irkey_state_code == 0x01 && irkey.irkey_datal == REMOTE_MENU){
+            printf("delete panel\n");
+            lv_group_remove_all_objs(g);
+            lv_obj_del(act_obj);
+            act_obj = NULL;
+            gsf_mpp_fb_hide(VOFB_GUI, 1);
+        }else{
+            state = irkey.irkey_state_code ? LV_INDEV_STATE_REL : LV_INDEV_STATE_PR;
+            if(state == LV_INDEV_STATE_PR){
+                last_key = irkey.irkey_datal;//keycode_to_ascii(rcv_irkey_info[i].irkey_datal);
+            }
+        }
+    }else{
+
+        if(irkey.irkey_state_code == 0x01 && irkey.irkey_datal == REMOTE_MENU){
+            printf("create panel\n");
+            gsf_mpp_fb_hide(VOFB_GUI, 0);
+            act_obj = create_setting_panel(lv_scr_act(),g);
+        }
+    }
+
+}
 
 static void* lvgl_main(void* p)
 {
@@ -119,7 +157,7 @@ static void* lvgl_main(void* p)
 
 
     g = lv_group_create();
-    lv_group_set_focus_cb(g, focus_cb);
+
     /*------------------
      * Keypad
      * -----------------*/
@@ -139,7 +177,6 @@ static void* lvgl_main(void* p)
      * `lv_indev_set_group(indev_keypad, group);` */
 
 
-
     /*Create a Demo*/
 #if 0
     tv = lv_tabview_create(lv_scr_act(), NULL);
@@ -154,28 +191,6 @@ static void* lvgl_main(void* p)
     text_input_create(t2);
 
     msgbox_create();
-#else
-
-    // transparent screen
-    // https://docs.lvgl.io/v7/en/html/overview/display.html#transparent-screens
-    lv_obj_set_style_local_bg_opa(lv_scr_act(), LV_OBJMASK_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_TRANSP);
-    lv_disp_set_bg_opa(NULL, LV_OPA_TRANSP);
-
-
-
-    static lv_style_t my_style;
-
-    lv_style_init(&my_style);
-
-    lv_style_set_text_font(&my_style, LV_STATE_DEFAULT, &puhui_regular_16);  /*Set a larger font*/
-    tv = lv_tabview_create(lv_scr_act(), NULL);
-    /* lv_obj_set_event_cb(tv, tv_event_cb); */
-    lv_obj_set_size(tv, 800, 600);
-    lv_obj_align(tv, NULL, LV_ALIGN_CENTER, 0, 0);
-    t1 = lv_tabview_add_tab(tv, "信息");
-    t2 = lv_tabview_add_tab(tv, "设置");
-    t3 = lv_tabview_add_tab(tv, "视频");
-    lv_group_add_obj(g, tv);
 
 #endif
     /*Handle LitlevGL tasks (tickless mode)*/
@@ -212,7 +227,7 @@ uint32_t custom_tick_get(void)
 
 
 
-
+#if 0
 /**********************
  *   STATIC FUNCTIONS
  **********************/
@@ -301,97 +316,101 @@ static void msgbox_event_cb(lv_obj_t * msgbox, lv_event_t e)
         }
     }
 }
+#endif
 
-static void focus_cb(lv_group_t * group)
-{
-    lv_obj_t * obj = lv_group_get_focused(group);
-    if(obj != tv) {
-        uint16_t tab = lv_tabview_get_tab_act(tv);
-        switch(tab) {
-        case 0:
-            lv_page_focus(t1, obj, LV_ANIM_ON);
-            break;
-        case 1:
-            lv_page_focus(t2, obj, LV_ANIM_ON);
-            break;
-        case 2:
-            lv_page_focus(t3, obj, LV_ANIM_ON);
-            break;
-        }
-    }
-}
 
-static void tv_event_cb(lv_obj_t * ta, lv_event_t e)
-{
-    if(e == LV_EVENT_VALUE_CHANGED || e == LV_EVENT_REFRESH) {
-        lv_group_remove_all_objs(g);
+/* static void tv_event_cb(lv_obj_t * ta, lv_event_t e) */
+/* { */
+/* #if 0 */
+/*     if(e == LV_EVENT_VALUE_CHANGED || e == LV_EVENT_REFRESH) { */
+/*         lv_group_remove_all_objs(g); */
 
-        uint16_t tab = lv_tabview_get_tab_act(tv);
-        size_t size = 0;
-        lv_obj_t ** objs = NULL;
-        if(tab == 0) {
-            size = sizeof(selector_objs);
-            objs = (lv_obj_t**) &selector_objs;
-        }
-        else if(tab == 1) {
-            size = sizeof(textinput_objs);
-            objs = (lv_obj_t**) &textinput_objs;
-        }
+/*         uint16_t tab = lv_tabview_get_tab_act(tv); */
+/*         size_t size = 0; */
+/*         lv_obj_t ** objs = NULL; */
+/*         if(tab == 0) { */
+/*             size = sizeof(selector_objs); */
+/*             objs = (lv_obj_t**) &selector_objs; */
+/*         } */
+/*         else if(tab == 1) { */
+/*             size = sizeof(textinput_objs); */
+/*             objs = (lv_obj_t**) &textinput_objs; */
+/*         } */
 
-        lv_group_add_obj(g, tv);
+/*         lv_group_add_obj(g, tv); */
 
-        uint32_t i;
-        for(i = 0; i < size / sizeof(lv_obj_t *); i++) {
-            if(objs[i] == NULL) continue;
-            lv_group_add_obj(g, objs[i]);
-        }
+/*         uint32_t i; */
+/*         for(i = 0; i < size / sizeof(lv_obj_t *); i++) { */
+/*             if(objs[i] == NULL) continue; */
+/*             lv_group_add_obj(g, objs[i]); */
+/*         } */
 
-    }
+/*     } */
+/* #endif */
+/*     if(e == LV_EVENT_VALUE_CHANGED || e == LV_EVENT_REFRESH){ */
+/*         lv_group_remove_all_objs(g); */
 
-}
+/*         uint16_t tab = lv_tabview_get_tab_act(tv); */
+/*         lv_group_add_obj(g, tv); */
 
-static void ta_event_cb(lv_obj_t * ta, lv_event_t e)
-{
-    /*Create a virtual keyboard for the encoders*/
-    lv_indev_t * indev = lv_indev_get_act();
-    if(indev == NULL) return;
-    lv_indev_type_t indev_type = lv_indev_get_type(indev);
+/*         if(tab == 0){ */
+/*             lv_group_add_obj(g, list_menu); */
 
-    if(e == LV_EVENT_FOCUSED) {
-        lv_textarea_set_cursor_hidden(ta, false);
-        if(lv_group_get_editing(g)) {
-            if(textinput_objs.kb == NULL) {
-                textinput_objs.kb = lv_keyboard_create(lv_scr_act(), NULL);
-                lv_group_add_obj(g, textinput_objs.kb);
-                lv_obj_set_event_cb(textinput_objs.kb, kb_event_cb);
-                lv_obj_set_height(tv, LV_VER_RES - lv_obj_get_height(textinput_objs.kb));
-            }
+/*         }else if(tab == 1){ */
 
-            lv_keyboard_set_textarea(textinput_objs.kb, ta);
-            lv_group_focus_obj(textinput_objs.kb);
-            lv_group_set_editing(g, true);
-            lv_page_focus(t2, lv_textarea_get_label(ta), LV_ANIM_ON);
-        }
-    }
-    else if(e == LV_EVENT_DEFOCUSED) {
-        if(indev_type == LV_INDEV_TYPE_ENCODER) {
-            if(textinput_objs.kb == NULL) {
-                lv_textarea_set_cursor_hidden(ta, true);
-            }
-        } else {
-            lv_textarea_set_cursor_hidden(ta, true);
-        }
-    }
-}
+/*         }else if(tab == 2){ */
 
-static void kb_event_cb(lv_obj_t * kb, lv_event_t e)
-{
-    lv_keyboard_def_event_cb(kb, e);
+/*         } */
 
-    if(e == LV_EVENT_APPLY || e == LV_EVENT_CANCEL) {
-        lv_group_focus_obj(lv_keyboard_get_textarea(kb));
-        lv_obj_del(kb);
-        textinput_objs.kb = NULL;
-        lv_obj_set_height(tv, LV_VER_RES);
-    }
-}
+
+/*         //uint32_t i; */
+
+/*     } */
+
+/* } */
+
+/* static void ta_event_cb(lv_obj_t * ta, lv_event_t e) */
+/* { */
+/*     /\*Create a virtual keyboard for the encoders*\/ */
+/*     lv_indev_t * indev = lv_indev_get_act(); */
+/*     if(indev == NULL) return; */
+/*     lv_indev_type_t indev_type = lv_indev_get_type(indev); */
+
+/*     if(e == LV_EVENT_FOCUSED) { */
+/*         lv_textarea_set_cursor_hidden(ta, false); */
+/*         if(lv_group_get_editing(g)) { */
+/*             if(textinput_objs.kb == NULL) { */
+/*                 textinput_objs.kb = lv_keyboard_create(lv_scr_act(), NULL); */
+/*                 lv_group_add_obj(g, textinput_objs.kb); */
+/*                 lv_obj_set_event_cb(textinput_objs.kb, kb_event_cb); */
+/*                 lv_obj_set_height(tv, LV_VER_RES - lv_obj_get_height(textinput_objs.kb)); */
+/*             } */
+
+/*             lv_keyboard_set_textarea(textinput_objs.kb, ta); */
+/*             lv_group_focus_obj(textinput_objs.kb); */
+/*             lv_group_set_editing(g, true); */
+/*             lv_page_focus(t2, lv_textarea_get_label(ta), LV_ANIM_ON); */
+/*         } */
+/*     } */
+/*     else if(e == LV_EVENT_DEFOCUSED) { */
+/*         if(indev_type == LV_INDEV_TYPE_ENCODER) { */
+/*             if(textinput_objs.kb == NULL) { */
+/*                 lv_textarea_set_cursor_hidden(ta, true); */
+/*             } */
+/*         } else { */
+/*             lv_textarea_set_cursor_hidden(ta, true); */
+/*         } */
+/*     } */
+/* } */
+
+/* static void kb_event_cb(lv_obj_t * kb, lv_event_t e) */
+/* { */
+/*     lv_keyboard_def_event_cb(kb, e); */
+
+/*     if(e == LV_EVENT_APPLY || e == LV_EVENT_CANCEL) { */
+/*         lv_group_focus_obj(lv_keyboard_get_textarea(kb)); */
+/*         lv_obj_del(kb); */
+/*         textinput_objs.kb = NULL; */
+/*         lv_obj_set_height(tv, LV_VER_RES); */
+/*     } */
+/* } */

@@ -49,7 +49,14 @@ set(SOURCES
     src/main.c
     src/ui_main.c
     src/keypad.c
-    src/puhui_regular_16.c
+    src/ui_setting_panel.c
+    src/ui_fb.c
+    )
+
+set(FONTS
+    font/puhui_regular_16.c
+    # font/puhui_regular_24.c
+    # font/puhui_regular_28.c
     )
 
 # Include header files
@@ -114,7 +121,7 @@ set(LVGL_SRCS
     ${LVGL_PATH}/lvgl/src/lv_font/lv_font_fmt_txt.c
     ${LVGL_PATH}/lvgl/src/lv_font/lv_font_loader.c
     # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_12.c
-    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_14.c
+    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_14.c
     # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_16.c
     # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_18.c
     # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_20.c
@@ -136,7 +143,7 @@ set(LVGL_SRCS
     # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_montserrat_28_compressed.c
     # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_unscii_8.c
     # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_dejavu_16_persian_hebrew.c
-    ${LVGL_PATH}/lvgl/src/lv_font/lv_font_simsun_16_cjk.c
+    # ${LVGL_PATH}/lvgl/src/lv_font/lv_font_simsun_16_cjk.c
     ${LVGL_PATH}/lvgl/src/lv_misc/lv_area.c
     ${LVGL_PATH}/lvgl/src/lv_misc/lv_task.c
     ${LVGL_PATH}/lvgl/src/lv_misc/lv_fs.c
@@ -210,6 +217,7 @@ include_directories(
 add_executable(${PROJECT_NAME}
     ${SOURCES}
     ${LVGL_SRCS}
+    ${FONTS}
     )
 
 # Set the directories that should be included in the build command for this target
